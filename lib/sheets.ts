@@ -112,6 +112,38 @@ export async function logSubmission(params: LogSubmissionParams): Promise<number
   return match ? parseInt(match[1], 10) : 0;
 }
 
+export async function deleteSubmissionRow(rowIndex: number): Promise<void> {
+  const sheets = getSheetsClient();
+
+  // Get the numeric sheetId for 'Log Submission'
+  const spreadsheet = await sheets.spreadsheets.get({
+    spreadsheetId: SPREADSHEET_ID,
+  });
+  const sheet = (spreadsheet.data.sheets as any[])?.find(
+    (s: any) => s.properties?.title === SHEET_NAMES.logSubmission,
+  );
+  const sheetId: number = sheet?.properties?.sheetId ?? 0;
+
+  // Delete the row (0-indexed: rowIndex-1 to rowIndex)
+  await (sheets.spreadsheets as any).batchUpdate({
+    spreadsheetId: SPREADSHEET_ID,
+    requestBody: {
+      requests: [
+        {
+          deleteDimension: {
+            range: {
+              sheetId,
+              dimension: 'ROWS',
+              startIndex: rowIndex - 1,
+              endIndex: rowIndex,
+            },
+          },
+        },
+      ],
+    },
+  });
+}
+
 export async function addBapToSubmission(rowIndex: number): Promise<void> {
   const sheets = getSheetsClient();
 

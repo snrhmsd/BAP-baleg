@@ -102,3 +102,15 @@ export async function uploadFileToDrive(params: {
     webViewLink: data.webViewLink ?? '',
   };
 }
+
+/**
+ * Move a Drive folder (and all its contents) to Trash.
+ * Uses user accessToken so the item goes to the user's own Trash.
+ */
+export async function trashDriveFolder(folderId: string, accessToken?: string): Promise<void> {
+  const drive = getDriveClient(accessToken) as any;
+  await drive.files.update({
+    fileId: folderId,
+    requestBody: { trashed: true },
+  });
+}

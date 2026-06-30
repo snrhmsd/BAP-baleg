@@ -6,7 +6,7 @@ import { Submission, UploadProgress } from '@/types';
 import { VerificationBadge, TimeBadge } from '@/components/ui/Badge';
 import { Card } from '@/components/ui/Card';
 import { formatTanggalWaktu, formatTanggal } from '@/lib/utils';
-import { ExternalLink, RefreshCw, ClipboardList, X, AlertCircle, CheckCircle } from 'lucide-react';
+import { ExternalLink, RefreshCw, ClipboardList, X, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import Button from '@/components/ui/Button';
 import FileUpload from '@/components/ui/FileUpload';
 
@@ -27,6 +27,11 @@ export default function RiwayatPage() {
   const [modalProgresses, setModalProgresses] = useState<UploadProgress[]>([]);
   const [modalError, setModalError] = useState('');
   const [modalSuccess, setModalSuccess] = useState(false);
+
+  // Delete state
+  const [confirmDeleteSub, setConfirmDeleteSub] = useState<Submission | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const fetchData = () => {
     setLoading(true);
@@ -132,6 +137,34 @@ export default function RiwayatPage() {
     setModalError('');
     setModalSuccess(false);
     setModalSubmitting(false);
+  };
+
+  const handleDelete = async () => {
+    if (!confirmDeleteSub) return;
+    setDeleting(true);
+    setDeleteError('');
+
+    const folderId = getFolderIdFromLink(confirmDeleteSub.linkFolderDrive);
+
+    try {
+      const res = await fetch(`/api/submission/${confirmDeleteSub.id}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folderId }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.success) {
+        setConfirmDeleteSub(null);
+        fetchData();
+      } else {
+        setDeleteError(data.error ?? 'Gagal menghapus submission');
+      }
+    } catch {
+      setDeleteError('Gagal menghubungi server');
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -276,6 +309,16 @@ export default function RiwayatPage() {
                       Buka Drive
                     </a>
                   )}
+                  {s.statusVerifikasi === 'Draft' && (
+                    <button
+                      onClick={() => { setConfirmDeleteSub(s); setDeleteError(''); }}
+                      id={`btn-delete-${s.id}`}
+                      className="flex items-center gap-1.5 px-3 py-2 text-sm font-semibold text-red-500 border border-red-200 rounded-xl hover:bg-red-50 transition-colors whitespace-nowrap"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      Hapus
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -353,6 +396,74 @@ export default function RiwayatPage() {
                 </Button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {/* Delete Confirmation Modal */}
+      {confirmDeleteSub && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-gray-100 space-y-4">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <h2 className="text-lg font-bold text-red-600 flex items-center gap-2">
+                <Trash2 className="w-5 h-5" />
+                Hapus Submission
+              </h2>
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteSub(null)}
+                disabled={deleting}
+                className="text-gray-400 hover:text-gray-600 transition-colors p-1"
+                aria-label="Tutup"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600">
+                Kamu akan menghapus submission:
+              </p>
+              <p className="font-bold text-navy-900">{confirmDeleteSub.namaAcara}</p>
+              <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 space-y-1">
+                <p>⚠️ <span className="font-semibold">Tindakan ini tidak dapat dibatalkan.</span></p>
+                <p>• Data submission akan dihapus dari sistem</p>
+                <p>• Folder Google Drive akan dipindahkan ke Trash</p>
+              </div>
+            </div>
+
+            {deleteError && (
+              <div className="flex gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs">
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <p>{deleteError}</p>
+              </div>
+            )}
+
+            <div className="flex gap-2 justify-end pt-1">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConfirmDeleteSub(null)}
+                disabled={deleting}
+              >
+                Batal
+              </Button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                id="btn-confirm-delete"
+                className="flex items-center gap-2 px-4 py-2 text-sm font-semibold text-white bg-red-500 hover:bg-red-600 rounded-xl transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {deleting ? (
+                  <svg className="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                  </svg>
+                ) : (
+                  <Trash2 className="w-4 h-4" />
+                )}
+                {deleting ? 'Menghapus...' : 'Ya, Hapus'}
+              </button>
+            </div>
           </div>
         </div>
       )}
