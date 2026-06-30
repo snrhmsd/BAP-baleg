@@ -128,7 +128,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: fileErrors.join('; ') }, { status: 400 });
     }
 
-    // Auto-calculate deadline H+2
+    // Auto-calculate deadline H+3
     const deadlinePengumpulan = computeDeadline(new Date());
     const statusWaktu = 'Mohon Upload BAP';
 

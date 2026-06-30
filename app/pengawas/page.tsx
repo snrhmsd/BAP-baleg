@@ -75,7 +75,7 @@ export default function PengawasPage() {
   const [uploadProgresses, setUploadProgresses] = useState<UploadProgress[]>([]);
   const [submitResult, setSubmitResult] = useState<{ success: boolean; message: string; link?: string } | null>(null);
 
-  // Computed deadline: H+2 from today
+  // Computed deadline: H+3 from today
   const deadline = computeDeadline();
 
   // Load departments
@@ -298,7 +298,7 @@ export default function PengawasPage() {
               Upload Bukti <span className="text-gold-500">Pengawasan</span>
             </h1>
             <p className="text-gray-500 mt-1">
-              Deadline otomatis <span className="font-semibold text-navy-900">H+2</span> dari tanggal submit —{' '}
+              Deadline otomatis <span className="font-semibold text-navy-900">H+3</span> setelah upload Bukti Foto —{' '}
               <span className="text-gold-500 font-semibold">{formatTanggal(deadline)}</span>
             </p>
           </div>
@@ -520,7 +520,7 @@ export default function PengawasPage() {
             <p className="text-gray-500 max-w-md mx-auto">
               {isDraft ? (
                 <>
-                  Bukti foto kegiatan untuk acara &apos;{createdSubmission.namaAcara}&apos; telah disimpan sebagai draft. 
+                  Bukti foto kegiatan untuk acara &apos;{createdSubmission.namaAcara}&apos; telah disimpan sebagai draft.
                   Silakan lengkapi dan unggah Laporan BAP (PDF) nanti melalui halaman <strong>Riwayat</strong> untuk menyelesaikannya.
                 </>
               ) : (

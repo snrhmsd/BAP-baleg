@@ -83,10 +83,10 @@ export function addDays(from: Date | string, days: number): string {
 }
 
 /**
- * Compute deadline: H+2 after submission date
+ * Compute deadline: H+3 after submission date
  */
 export function computeDeadline(submissionDate?: Date): string {
-  return addDays(submissionDate ?? new Date(), 2);
+  return addDays(submissionDate ?? new Date(), 3);
 }
 
 /**
