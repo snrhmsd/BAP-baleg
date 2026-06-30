@@ -3,8 +3,12 @@
 @theme {
   --color-navy-900: #16243E;
   --color-navy-700: #1C3A5E;
-  --color-gold-500: #C99A3E;
+  --color-gold-50:  #FDF8EE;
   --color-gold-100: #FDECD2;
+  --color-gold-200: #EDD8A6;
+  --color-gold-400: #D4A84B;
+  --color-gold-500: #C99A3E;
+  --color-gold-600: #A87A2E;
   --color-sky-500: #2F9FD0;
 
   --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
